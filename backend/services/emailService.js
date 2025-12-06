@@ -32,6 +32,9 @@ exports.sendEmail = async (to, subject, htmlBody) => {
     }
 };
 
+const pdf = require('pdf-parse');
+const mammoth = require('mammoth');
+
 exports.checkInboxForProposals = async () => {
     const config = {
         imap: {
@@ -48,25 +51,63 @@ exports.checkInboxForProposals = async () => {
         const connection = await imaps.connect(config);
         await connection.openBox('INBOX');
 
-        const searchCriteria = ['UNSEEN']; // Only check unseen messages
+        const searchCriteria = ['UNSEEN'];
         const fetchOptions = {
-            bodies: ['HEADER', 'TEXT'],
-            markSeen: true
+            bodies: ['HEADER', 'TEXT', ''], // Fetch full body for attachments
+            markSeen: true,
+            struct: true
         };
 
         const messages = await connection.search(searchCriteria, fetchOptions);
         const parsedEmails = [];
 
         for (const item of messages) {
-            const all = _.find(item.parts, { "which": "TEXT" });
+            const all = _.find(item.parts, { "which": "" }); // Use complete message part
             const id = item.attributes.uid;
             const idHeader = "Imap-Id: " + id + "\r\n";
-            const mail = await simpleParser(idHeader + all.body);
+
+            // If fetching full message, 'all.body' might be what we need, but imap-simple works a bit differently for attachments.
+            // Using simpleParser on the full raw source is safer.
+            const rawSource = all.body;
+
+            const mail = await simpleParser(rawSource);
+
+            let combinedText = mail.text || "";
+            if (mail.html) {
+                // Ideally strip HTML tags if text is missing, but usually text is present.
+                // combinedText += ... 
+            }
+
+            // Process Attachments
+            if (mail.attachments && mail.attachments.length > 0) {
+                for (const attachment of mail.attachments) {
+                    const filename = attachment.filename || "";
+                    const lowerFilename = filename.toLowerCase();
+
+                    if (lowerFilename.endsWith('.pdf')) {
+                        try {
+                            const data = await pdf(attachment.content);
+                            combinedText += `\n\n--- Attachment: ${filename} ---\n${data.text}`;
+                        } catch (err) {
+                            console.error(`Error parsing PDF ${filename}:`, err);
+                            combinedText += `\n\n[Error parsing attachment ${filename}]`;
+                        }
+                    } else if (lowerFilename.endsWith('.docx')) {
+                        try {
+                            const result = await mammoth.extractRawText({ buffer: attachment.content });
+                            combinedText += `\n\n--- Attachment: ${filename} ---\n${result.value}`;
+                        } catch (err) {
+                            console.error(`Error parsing DOCX ${filename}:`, err);
+                            combinedText += `\n\n[Error parsing attachment ${filename}]`;
+                        }
+                    }
+                }
+            }
 
             parsedEmails.push({
                 from: mail.from.value[0].address,
                 subject: mail.subject,
-                text: mail.text,
+                text: combinedText, // Combined text used for AI analysis
                 html: mail.html,
                 date: mail.date
             });

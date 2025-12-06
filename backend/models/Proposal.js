@@ -8,7 +8,7 @@ const Proposal = db.define('proposal', {
         autoIncrement: true
     },
     email_content: {
-        type: Sequelize.TEXT,
+        type: Sequelize.TEXT('long'),
         allowNull: false
     },
     extracted_data: {

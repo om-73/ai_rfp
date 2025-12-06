@@ -32,6 +32,15 @@ app.use('/api/vendors', vendorRoutes);
 app.use('/api/rfps', rfpRoutes);
 app.use('/api/proposals', proposalRoutes);
 
+// Serve Static Frontend Assets (Production)
+if (process.env.NODE_ENV === 'production' || process.env.RENDER) {
+    app.use(express.static(path.join(__dirname, '../../frontend/dist')));
+
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, '../../frontend/dist', 'index.html'));
+    });
+}
+
 // Start Server
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);

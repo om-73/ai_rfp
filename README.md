@@ -104,3 +104,4 @@ Built with the assistance of an AI Agent (Antigravity).
 - **Scaffolding**: Quickly generated file structures and boilerplate code.
 - **Debugging**: Helped resolve syntax errors in email handling.
 - **Logic**: Generated the AI prompt strategies for extraction.
+# rfp
