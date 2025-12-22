@@ -13,9 +13,19 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Test DB Connection
+// Request Logging Middleware
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
+});
+
+// Test DB Connection and Sync
 sequelize.authenticate()
-    .then(() => console.log('Database connected...'))
+    .then(() => {
+        console.log('Database connected...');
+        return sequelize.sync({ alter: true });
+    })
+    .then(() => console.log('Database synced...'))
     .catch(err => console.log('Error: ' + err));
 
 // Basic Route
