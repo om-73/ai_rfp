@@ -70,7 +70,7 @@ exports.sendRFPToVendors = async (req, res) => {
             failed: []
         };
 
-        for (const vendor of vendors) {
+        const emailPromises = vendors.map(async (vendor) => {
             // Create junction record if not exists
             await RFPVendor.findOrCreate({
                 where: {
@@ -111,10 +111,12 @@ exports.sendRFPToVendors = async (req, res) => {
                 console.error(`Failed to send email to vendor ${vendor.id}:`, emailErr.message);
                 results.failed.push({ vendorId: vendor.id, error: emailErr.message });
             }
-        }
+        });
+
+        await Promise.all(emailPromises);
 
         res.status(200).json({
-            message: `Processed ${vendors.length} vendors.`,
+            message: `Processed ${vendors.length} vendors in parallel.`,
             results
         });
 
