@@ -16,13 +16,14 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-exports.sendEmail = async (to, subject, htmlBody) => {
+exports.sendEmail = async (to, subject, htmlBody, attachments = []) => {
     try {
         const info = await transporter.sendMail({
             from: `"RFP AI System" <${process.env.SMTP_USER}>`,
             to: to,
             subject: subject,
             html: htmlBody,
+            attachments: attachments,
         });
         console.log("Message sent: %s", info.messageId);
         return info;
@@ -31,6 +32,7 @@ exports.sendEmail = async (to, subject, htmlBody) => {
         throw error;
     }
 };
+
 
 const pdf = require('pdf-parse');
 const mammoth = require('mammoth');

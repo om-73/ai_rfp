@@ -1,6 +1,8 @@
 const { RFP, Vendor, RFPVendor } = require('../models');
 const aiService = require('../services/aiService');
 const emailService = require('../services/emailService');
+const pdfService = require('../services/pdfService');
+
 
 exports.createRFP = async (req, res) => {
     try {
@@ -60,8 +62,10 @@ exports.sendRFPToVendors = async (req, res) => {
         rfp.status = 'SENT';
         await rfp.save();
 
+        // Generate RFP PDF
+        const pdfBuffer = await pdfService.generateRFPPDF(rfp);
+
         for (const vendor of vendors) {
-            // Create junction record
             // Create junction record if not exists
             await RFPVendor.findOrCreate({
                 where: {
@@ -73,22 +77,32 @@ exports.sendRFPToVendors = async (req, res) => {
                 }
             });
 
-            // Send Email
+            // Send Email with PDF Attachment
             const subject = `RFP Invitation: ${rfp.title}`;
+            const attachments = [
+                {
+                    filename: `${rfp.title || 'RFP'}.pdf`,
+                    content: pdfBuffer,
+                    contentType: 'application/pdf'
+                }
+            ];
+
             const html = `
                 <h2>Request for Proposal</h2>
                 <p>Dear ${vendor.name},</p>
                 <p>We are inviting you to submit a proposal for the following requirements:</p>
                 <pre>${rfp.user_prompt}</pre>
                 <p><strong>Timeline:</strong> ${rfp.structured_data.timeline || 'ASAP'}</p>
+                <p>Please find the formal RFP document attached.</p>
                 <p>Please reply to this email with your proposal.</p>
                 <br>
                 <p>Best regards,<br>Procurement Team</p>
             `;
-            await emailService.sendEmail(vendor.email, subject, html);
+            await emailService.sendEmail(vendor.email, subject, html, attachments);
         }
 
-        res.status(200).json({ message: `RFP sent to ${vendors.length} vendors.` });
+        res.status(200).json({ message: `RFP sent to ${vendors.length} vendors with PDF attachments.` });
+
 
     } catch (error) {
         console.error(error);
