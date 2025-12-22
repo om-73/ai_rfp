@@ -51,12 +51,27 @@ exports.getRFPById = async (req, res) => {
 
 exports.sendRFPToVendors = async (req, res) => {
     try {
+        console.log("-----------------------------------------");
+        console.log("Received Request to Send RFP:", req.body);
         const { rfpId, vendorIds } = req.body;
+
+        if (!rfpId || !vendorIds || !Array.isArray(vendorIds)) {
+            console.error("Invalid Request Data: Missing ID or vendorIds is not array");
+            return res.status(400).json({ error: "Invalid request data" });
+        }
+
+        console.log(`Looking for RFP ID: ${rfpId}`);
         const rfp = await RFP.findByPk(rfpId);
 
-        if (!rfp) return res.status(404).json({ message: 'RFP not found' });
+        if (!rfp) {
+            console.error("RFP Not Found in Database");
+            return res.status(404).json({ message: 'RFP not found' });
+        }
+        console.log("RFP Found:", rfp.title);
 
+        console.log(`Looking for Vendors: ${JSON.stringify(vendorIds)}`);
         const vendors = await Vendor.findAll({ where: { id: vendorIds } });
+        console.log(`Found ${vendors.length} vendors.`);
 
         // Update RFP status
         rfp.status = 'SENT';

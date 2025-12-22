@@ -58,7 +58,7 @@ exports.generateRFPPDF = async (rfp) => {
     });
     yOffset -= 20;
 
-    const lines = rfp.user_prompt.split('\n');
+    const lines = (rfp.user_prompt || '').split('\n');
     for (const line of lines) {
         if (yOffset < 50) {
             // Very basic page overflow handling (just for now)
