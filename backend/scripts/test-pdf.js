@@ -21,6 +21,7 @@ const mockEmails = [
     }
 ];
 
+/*
 // Mock imap-simple to return our mock email
 jest.mock('imap-simple', () => ({
     connect: jest.fn().mockResolvedValue({
@@ -36,6 +37,7 @@ jest.mock('imap-simple', () => ({
         end: jest.fn()
     })
 }));
+*/
 
 // Actually, writing a full script that mocks specific libraries inside the service without Jest is hard.
 // Instead, let's create a script that IMPORTS the logic we added (the parsing part) and tests it in isolation,
@@ -44,6 +46,7 @@ jest.mock('imap-simple', () => ({
 
 // Let's create a script to TEST PDF PARSING explicitly.
 const pdf = require('pdf-parse');
+
 
 async function testPdfParse() {
     try {
@@ -56,8 +59,10 @@ async function testPdfParse() {
         }
 
         const dataBuffer = fs.readFileSync(pdfPath);
-        const data = await pdf(dataBuffer);
+        const parser = new pdf.PDFParse({ data: dataBuffer });
+        const data = await parser.getText();
         console.log("Parsed PDF Text:", data.text);
+        await parser.destroy();
     } catch (e) {
         console.error("Error", e);
     }

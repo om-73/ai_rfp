@@ -62,10 +62,15 @@ exports.sendRFPToVendors = async (req, res) => {
 
         for (const vendor of vendors) {
             // Create junction record
-            await RFPVendor.create({
-                rfpId: rfp.id,
-                vendorId: vendor.id,
-                status: 'SENT'
+            // Create junction record if not exists
+            await RFPVendor.findOrCreate({
+                where: {
+                    rfpId: rfp.id,
+                    vendorId: vendor.id
+                },
+                defaults: {
+                    status: 'SENT'
+                }
             });
 
             // Send Email

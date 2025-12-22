@@ -98,10 +98,4 @@ CREATE DATABASE rfp_ai_db;
 - **Email Workflow**: Assumes vendors reply to the same email address configured in the system. The system basically scans the inbox and tries to match the sender to a known vendor and assigns the proposal to the latest active RFP.
 - **Single User**: No authentication implemented as per scope.
 
-## AI Tools Usage
 
-Built with the assistance of an AI Agent (Antigravity).
-- **Scaffolding**: Quickly generated file structures and boilerplate code.
-- **Debugging**: Helped resolve syntax errors in email handling.
-- **Logic**: Generated the AI prompt strategies for extraction.
-# rfp
