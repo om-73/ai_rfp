@@ -92,10 +92,38 @@ CREATE DATABASE rfp_ai_db;
 - `POST /api/proposals/check-emails` - Trigger inbox check for new proposals
 - `GET /api/proposals/rfp/:rfpId` - Get proposals for a specific RFP
 
+## Deployment
+
+### 1. Backend & Database (Render)
+This project is configured for deployment on Render using a Blueprint (`render.yaml`).
+
+1. Create a new **Blueprint** on [Render](https://dashboard.render.com/blueprints).
+2. Connect your GitHub repository.
+3. Render will automatically detect `render.yaml` and set up:
+   - A PostgreSQL database.
+   - A Node.js Web Service.
+4. Go to the **Web Service** dashboard -> **Environment** and add the following missing secrets:
+   - `OPENAI_API_KEY`
+   - `SMTP_USER` & `SMTP_PASS`
+   - `IMAP_USER` & `IMAP_PASSWORD`
+   - `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` (These are auto-filled if using Blueprint, but verify `DATABASE_URL`).
+
+### 2. Frontend (Vercel)
+The frontend is optimized for Vercel.
+
+1. Create a new Project on [Vercel](https://vercel.com/new).
+2. Connect your GitHub repository.
+3. Configure the project:
+   - **Framework Preset**: Vite
+   - **Root Directory**: `ai`
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `frontend/dist` (This is already set in `vercel.json`).
+4. Add Environment Variables:
+   - `VITE_API_URL`: Your Render backend URL (e.g., `https://rfp-ai-backend.onrender.com/api`).
+5. Click **Deploy**.
+
 ## Key Decisions & Assumptions
 
 - **AI Model**: Used GPT-4o for its high reliability in JSON structure extraction.
 - **Email Workflow**: Assumes vendors reply to the same email address configured in the system. The system basically scans the inbox and tries to match the sender to a known vendor and assigns the proposal to the latest active RFP.
 - **Single User**: No authentication implemented as per scope.
-
-
