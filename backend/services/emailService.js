@@ -18,6 +18,7 @@ const transporter = nodemailer.createTransport({
 
 exports.sendEmail = async (to, subject, htmlBody, attachments = []) => {
     try {
+        console.log(`Attempting to send email to: ${to} with subject: ${subject}`);
         const info = await transporter.sendMail({
             from: `"RFP AI System" <${process.env.SMTP_USER}>`,
             to: to,
@@ -25,7 +26,7 @@ exports.sendEmail = async (to, subject, htmlBody, attachments = []) => {
             html: htmlBody,
             attachments: attachments,
         });
-        console.log("Message sent: %s", info.messageId);
+        console.log("Message sent successfully: %s", info.messageId);
         return info;
     } catch (error) {
         console.error("Error sending email:", error);
