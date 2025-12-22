@@ -65,6 +65,11 @@ exports.sendRFPToVendors = async (req, res) => {
         // Generate RFP PDF
         const pdfBuffer = await pdfService.generateRFPPDF(rfp);
 
+        const results = {
+            success: [],
+            failed: []
+        };
+
         for (const vendor of vendors) {
             // Create junction record if not exists
             await RFPVendor.findOrCreate({
@@ -98,10 +103,20 @@ exports.sendRFPToVendors = async (req, res) => {
                 <br>
                 <p>Best regards,<br>Procurement Team</p>
             `;
-            await emailService.sendEmail(vendor.email, subject, html, attachments);
+
+            try {
+                await emailService.sendEmail(vendor.email, subject, html, attachments);
+                results.success.push(vendor.id);
+            } catch (emailErr) {
+                console.error(`Failed to send email to vendor ${vendor.id}:`, emailErr.message);
+                results.failed.push({ vendorId: vendor.id, error: emailErr.message });
+            }
         }
 
-        res.status(200).json({ message: `RFP sent to ${vendors.length} vendors with PDF attachments.` });
+        res.status(200).json({
+            message: `Processed ${vendors.length} vendors.`,
+            results
+        });
 
 
     } catch (error) {
