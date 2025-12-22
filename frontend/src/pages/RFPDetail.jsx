@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { getRFPById, sendRFP } from '../api/rfpApi';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { getRFPById, sendRFP, deleteRFP } from '../api/rfpApi';
 import SendRFPModal from '../components/SendRFPModal';
 import ProposalComparison from '../components/ProposalComparison';
 
@@ -25,6 +25,8 @@ const RFPDetail = () => {
         }
     };
 
+    const navigate = useNavigate();
+
     const handleSendRFPs = async (vendorIds) => {
         try {
             await sendRFP(rfp.id, vendorIds);
@@ -34,6 +36,19 @@ const RFPDetail = () => {
         } catch (error) {
             console.error("Error sending RFPs", error);
             alert("Failed to send RFPs.");
+        }
+    };
+
+    const handleDeleteRFP = async () => {
+        if (window.confirm("Are you sure you want to delete this RFP? This action cannot be undone.")) {
+            try {
+                await deleteRFP(rfp.id);
+                alert("RFP deleted successfully.");
+                navigate('/'); // Redirect to dashboard
+            } catch (error) {
+                console.error("Error deleting RFP:", error);
+                alert("Failed to delete RFP.");
+            }
         }
     };
 
@@ -49,9 +64,17 @@ const RFPDetail = () => {
                         {rfp.status}
                     </span>
                 </div>
-                <Link to="/vendors" className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded transition">
-                    Manage Vendors
-                </Link>
+                <div className="flex gap-4">
+                    <button
+                        onClick={handleDeleteRFP}
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition"
+                    >
+                        Delete RFP
+                    </button>
+                    <Link to="/vendors" className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded transition">
+                        Manage Vendors
+                    </Link>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

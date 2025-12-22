@@ -18,6 +18,11 @@ export const getRFPById = async (id) => {
     return response.data;
 };
 
+export const deleteRFP = async (id) => {
+    const response = await axios.delete(`${API_URL}/${id}`);
+    return response.data;
+};
+
 export const sendRFP = async (rfpId, vendorIds) => {
     const response = await axios.post(`${API_URL}/send`, { rfpId, vendorIds });
     return response.data;

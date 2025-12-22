@@ -7,4 +7,5 @@ router.post('/', rfpController.createRFP);
 router.get('/', rfpController.getAllRFPs);
 router.get('/:id', rfpController.getRFPById);
 
+router.delete('/:id', rfpController.deleteRFP); // Add delete route
 module.exports = router;

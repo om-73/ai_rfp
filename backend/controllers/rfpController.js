@@ -141,3 +141,20 @@ exports.sendRFPToVendors = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.deleteRFP = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const rfp = await RFP.findByPk(id);
+
+        if (!rfp) {
+            return res.status(404).json({ message: 'RFP not found' });
+        }
+
+        await rfp.destroy();
+        res.status(200).json({ message: 'RFP deleted successfully' });
+    } catch (error) {
+        console.error("Error deleting RFP:", error);
+        res.status(500).json({ error: error.message });
+    }
+};
