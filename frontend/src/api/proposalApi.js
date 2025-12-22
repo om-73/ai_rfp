@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api/proposals';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_URL = `${BASE_URL}/proposals`;
 
 export const checkEmails = async () => {
     const response = await axios.post(`${API_URL}/check-emails`);

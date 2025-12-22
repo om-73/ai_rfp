@@ -2,7 +2,7 @@ services:
   - type: web
     name: rfp-ai-backend
     env: node
-    rootDir: ai/backend
+    rootDir: backend
     buildCommand: npm install
     startCommand: npm start
     envVars:

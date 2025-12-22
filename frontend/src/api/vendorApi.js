@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api/vendors';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_URL = `${BASE_URL}/vendors`;
 
 export const getVendors = async () => {
     const response = await axios.get(API_URL);
