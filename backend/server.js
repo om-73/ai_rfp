@@ -36,7 +36,7 @@ app.use('/api/proposals', proposalRoutes);
 if (process.env.NODE_ENV === 'production' || process.env.RENDER) {
     app.use(express.static(path.join(__dirname, '../../frontend/dist')));
 
-    app.get('*', (req, res) => {
+    app.get(/(.*)/, (req, res) => {
         res.sendFile(path.join(__dirname, '../../frontend/dist', 'index.html'));
     });
 }
